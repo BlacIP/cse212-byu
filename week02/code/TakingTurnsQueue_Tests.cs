@@ -11,7 +11,7 @@ public class TakingTurnsQueueTests
     // Scenario: Create a queue with the following people and turns: Bob (2), Tim (5), Sue (3) and
     // run until the queue is empty
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, Sue, Tim, Tim
-    // Defect(s) Found: 
+    // Defect(s) Found: The queue does not correctly repeat players based on their turn counts.
     public void TestTakingTurnsQueue_FiniteRepetition()
     {
         var bob = new Person("Bob", 2);
@@ -30,7 +30,7 @@ public class TakingTurnsQueueTests
         {
             if (i >= expectedResult.Length)
             {
-                Assert.Fail("Queue should have ran out of items by now.");
+                Assert.Fail("Queue should have run out of items by now.");
             }
 
             var person = players.GetNextPerson();
@@ -41,9 +41,9 @@ public class TakingTurnsQueueTests
 
     [TestMethod]
     // Scenario: Create a queue with the following people and turns: Bob (2), Tim (5), Sue (3)
-    // After running 5 times, add George with 3 turns.  Run until the queue is empty.
+    // After running 5 times, add George with 3 turns. Run until the queue is empty.
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, George, Sue, Tim, George, Tim, George
-    // Defect(s) Found: 
+    // Defect(s) Found: Adding a player midway does not correctly integrate their turns into the queue.
     public void TestTakingTurnsQueue_AddPlayerMidway()
     {
         var bob = new Person("Bob", 2);
@@ -71,12 +71,11 @@ public class TakingTurnsQueueTests
         {
             if (i >= expectedResult.Length)
             {
-                Assert.Fail("Queue should have ran out of items by now.");
+                Assert.Fail("Queue should have run out of items by now.");
             }
 
             var person = players.GetNextPerson();
             Assert.AreEqual(expectedResult[i].Name, person.Name);
-
             i++;
         }
     }
@@ -85,7 +84,7 @@ public class TakingTurnsQueueTests
     // Scenario: Create a queue with the following people and turns: Bob (2), Tim (Forever), Sue (3)
     // Run 10 times.
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, Sue, Tim, Tim
-    // Defect(s) Found: 
+    // Defect(s) Found: The implementation does not handle infinite turns correctly, leading to unexpected behavior.
     public void TestTakingTurnsQueue_ForeverZero()
     {
         var timTurns = 0;
@@ -109,14 +108,15 @@ public class TakingTurnsQueueTests
 
         // Verify that the people with infinite turns really do have infinite turns.
         var infinitePerson = players.GetNextPerson();
-        Assert.AreEqual(timTurns, infinitePerson.Turns, "People with infinite turns should not have their turns parameter modified to a very big number. A very big number is not infinite.");
+        Assert.AreEqual(timTurns, infinitePerson.Turns, 
+            "People with infinite turns should not have their turns parameter modified to a large number. A large number is not infinite.");
     }
 
     [TestMethod]
     // Scenario: Create a queue with the following people and turns: Tim (Forever), Sue (3)
     // Run 10 times.
     // Expected Result: Tim, Sue, Tim, Sue, Tim, Sue, Tim, Tim, Tim, Tim
-    // Defect(s) Found: 
+    // Defect(s) Found: The implementation incorrectly interprets negative turns as finite, leading to incorrect turn behavior.
     public void TestTakingTurnsQueue_ForeverNegative()
     {
         var timTurns = -3;
@@ -137,13 +137,14 @@ public class TakingTurnsQueueTests
 
         // Verify that the people with infinite turns really do have infinite turns.
         var infinitePerson = players.GetNextPerson();
-        Assert.AreEqual(timTurns, infinitePerson.Turns, "People with infinite turns should not have their turns parameter modified to a very big number. A very big number is not infinite.");
+        Assert.AreEqual(timTurns, infinitePerson.Turns, 
+            "People with infinite turns should not have their turns parameter modified to a large number. A large number is not infinite.");
     }
 
     [TestMethod]
     // Scenario: Try to get the next person from an empty queue
     // Expected Result: Exception should be thrown with appropriate error message.
-    // Defect(s) Found: 
+    // Defect(s) Found: The queue does not handle empty state correctly, leading to unhandled exceptions.
     public void TestTakingTurnsQueue_Empty()
     {
         var players = new TakingTurnsQueue();
@@ -164,8 +165,8 @@ public class TakingTurnsQueueTests
         catch (Exception e)
         {
             Assert.Fail(
-                 string.Format("Unexpected exception of type {0} caught: {1}",
-                                e.GetType(), e.Message)
+                string.Format("Unexpected exception of type {0} caught: {1}",
+                              e.GetType(), e.Message)
             );
         }
     }
